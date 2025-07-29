@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OLA Daily Task Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-box h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .main-container {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .task-form {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-grid input, .form-grid select, .form-grid textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-grid textarea {
+            grid-column: 1 / -1;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .category-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .add-task-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .add-task-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .tasks-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tasks-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 100px;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .task-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 100px;
+            gap: 15px;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .task-item:hover {
+            background: #f8f9fa;
+        }
+
+        .task-title {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .task-description {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-todo { background: #ffeaa7; color: #fdcb6e; }
+        .status-in-progress { background: #74b9ff; color: white; }
+        .status-pending { background: #fd79a8; color: white; }
+        .status-accomplished { background: #00b894; color: white; }
+        .status-cancelled { background: #636e72; color: white; }
+
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .priority-low { background: #d1f2eb; color: #00b894; }
+        .priority-medium { background: #ffeaa7; color: #fdcb6e; }
+        .priority-high { background: #fab1a0; color: #e74c3c; }
+        .priority-urgent { background: #fd79a8; color: white; }
+
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .edit-btn { background: #74b9ff; color: white; }
+        .delete-btn { background: #e74c3c; color: white; }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .time-display {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .report-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .report-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .generate-report-btn {
+            background: #00b894;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .generate-report-btn:hover {
+            background: #00a085;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .no-tasks {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tasks-header, .task-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h1>OLA Daily Task Management System</h1>
+            <p style="color: #666; margin-bottom: 20px;">Office of the Legal Affairs</p>
+            <input type="password" id="passwordInput" placeholder="Enter system password" onkeypress="if(event.key==='Enter') login()">
+            <button class="login-btn" onclick="login()">Access System</button>
+            <div class="error" id="loginError"></div>
+        </div>
+    </div>
+
+    <div class="main-container" id="mainContainer">
+        <div class="header">
+            <div>
+                <h1>OLA Task Management</h1>
+                <p style="color: #666; margin-top: 5px;">Office of the Legal Affairs - Daily Task Tracker</p>
+            </div>
+            <div class="header-controls">
+                <span id="currentUser" style="color: #666; margin-right: 15px;"></span>
+                <span id="currentDate" style="color: #666; margin-right: 15px;"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="accomplishedTasks">0</div>
+                <div class="stat-label">Accomplished</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressTasks">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <div class="task-form">
+            <h3 style="margin-bottom: 20px; color: #333;">Add New Task</h3>
+            <div class="form-grid">
+                <select id="taskCategory" required>
+                    <option value="">Select Task Category</option>
+                    <option value="MOA">MOA</option>
+                    <option value="MOU">MOU</option>
+                    <option value="Assistance">Assistance</option>
+                    <option value="Attendance Report">Attendance Report</option>
+                    <option value="Clearance">Clearance</option>
+                    <option value="CNPAC">CNPAC</option>
+                    <option value="Communication Reimbursement">Communication Reimbursement</option>
+                    <option value="Complaint">Complaint</option>
+                    <option value="Compromise Agreement">Compromise Agreement</option>
+                    <option value="Concern">Concern</option>
+                    <option value="Contract Lease">Contract Lease</option>
+                    <option value="Contract of Agreement">Contract of Agreement</option>
+                    <option value="Contract of Service">Contract of Service</option>
+                    <option value="Contract of Undertaking">Contract of Undertaking</option>
+                    <option value="Crafting Policy">Crafting Policy</option>
+                    <option value="CSR">CSR</option>
+                    <option value="Deed of Donation">Deed of Donation</option>
+                    <option value="Endorsement">Endorsement</option>
+                    <option value="FabManLab Request">FabManLab Request</option>
+                    <option value="Flag Raising Ceremony">Flag Raising Ceremony</option>
+                    <option value="Green Contribution">Green Contribution</option>
+                    <option value="GSO Job Request">GSO Job Request</option>
+                    <option value="IDP">IDP</option>
+                    <option value="IGP Request">IGP Request</option>
+                    <option value="IPCR">IPCR</option>
+                    <option value="Legal Advice">Legal Advice</option>
+                    <option value="Letter">Letter</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Motorpool Request">Motorpool Request</option>
+                    <option value="OPCR">OPCR</option>
+                    <option value="Participation">Participation</option>
+                    <option value="PDS">PDS</option>
+                    <option value="Petty Cash Voucher">Petty Cash Voucher</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                    <option value="RIS">RIS</option>
+                    <option value="SALN">SALN</option>
+                    <option value="Service Agreement">Service Agreement</option>
+                    <option value="Speaking Engagement">Speaking Engagement</option>
+                    <option value="Study Grant Agreement">Study Grant Agreement</option>
+                    <option value="Study Leave Agreement">Study Leave Agreement</option>
+                    <option value="Support">Support</option>
+                    <option value="Term and Reference">Term and Reference</option>
+                    <option value="Thesis/Dissertation Assistance Contract">Thesis/Dissertation Assistance Contract</option>
+                    <option value="Travel Reimbursement">Travel Reimbursement</option>
+                    <option value="Usufruct">Usufruct</option>
+                    <option value="Webinar">Webinar</option>
+                    <option value="Website Maintenance">Website Maintenance</option>
+                    <option value="Written Legal Opinion">Written Legal Opinion</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" id="taskTitle" placeholder="Specific Task Title/Details" required>
+                <select id="taskAssignee" required>
+                    <option value="">Select Assignee</option>
+                    <option value="AIMF">Atty. Imee M. Fernandez (AIMF)</option>
+                    <option value="RAC">Rijane A. Cantanilla (RAC)</option>
+                    <option value="DJUL">Daisy Jane U. Lausin (DJUL)</option>
+                    <option value="SA">Student Assistant (SA)</option>
+                </select>
+                <select id="taskPriority" required>
+                    <option value="">Select Priority</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+                <textarea id="taskDescription" placeholder="Additional Details/Description"></textarea>
+            </div>
+            <button class="add-task-btn" onclick="addTask()">Add Task</button>
+        </div>
+
+        <div class="filters">
+            <label>Filter by:</label>
+            <select id="categoryFilter" onchange="filterTasks()">
+                <option value="">All Categories</option>
+                <option value="MOA">MOA</option>
+                <option value="MOU">MOU</option>
+                <option value="Assistance">Assistance</option>
+                <option value="Attendance Report">Attendance Report</option>
+                <option value="Clearance">Clearance</option>
+                <option value="CNPAC">CNPAC</option>
+                <option value="Communication Reimbursement">Communication Reimbursement</option>
+                <option value="Complaint">Complaint</option>
+                <option value="Compromise Agreement">Compromise Agreement</option>
+                <option value="Concern">Concern</option>
+                <option value="Contract Lease">Contract Lease</option>
+                <option value="Contract of Agreement">Contract of Agreement</option>
+                <option value="Contract of Service">Contract of Service</option>
+                <option value="Contract of Undertaking">Contract of Undertaking</option>
+                <option value="Crafting Policy">Crafting Policy</option>
+                <option value="CSR">CSR</option>
+                <option value="Deed of Donation">Deed of Donation</option>
+                <option value="Endorsement">Endorsement</option>
+                <option value="FabManLab Request">FabManLab Request</option>
+                <option value="Flag Raising Ceremony">Flag Raising Ceremony</option>
+                <option value="Green Contribution">Green Contribution</option>
+                <option value="GSO Job Request">GSO Job Request</option>
+                <option value="IDP">IDP</option>
+                <option value="IGP Request">IGP Request</option>
+                <option value="IPCR">IPCR</option>
+                <option value="Legal Advice">Legal Advice</option>
+                <option value="Letter">Letter</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Motorpool Request">Motorpool Request</option>
+                <option value="OPCR">OPCR</option>
+                <option value="Participation">Participation</option>
+                <option value="PDS">PDS</option>
+                <option value="Petty Cash Voucher">Petty Cash Voucher</option>
+                <option value="Purchase Order">Purchase Order</option>
+                <option value="RIS">RIS</option>
+                <option value="SALN">SALN</option>
+                <option value="Service Agreement">Service Agreement</option>
+                <option value="Speaking Engagement">Speaking Engagement</option>
+                <option value="Study Grant Agreement">Study Grant Agreement</option>
+                <option value="Study Leave Agreement">Study Leave Agreement</option>
+                <option value="Support">Support</option>
+                <option value="Term and Reference">Term and Reference</option>
+                <option value="Thesis/Dissertation Assistance Contract">Thesis/Dissertation Assistance Contract</option>
+                <option value="Travel Reimbursement">Travel Reimbursement</option>
+                <option value="Usufruct">Usufruct</option>
+                <option value="Webinar">Webinar</option>
+                <option value="Website Maintenance">Website Maintenance</option>
+                <option value="Written Legal Opinion">Written Legal Opinion</option>
+                <option value="Other">Other</option>
+            </select>
+            <select id="statusFilter" onchange="filterTasks()">
+                <option value="">All Status</option>
+                <option value="todo">To Do</option>
+                <option value="in-progress">In Progress</option>
+                <option value="pending">Pending</option>
+                <option value="accomplished">Accomplished</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <select id="assigneeFilter" onchange="filterTasks()">
+                <option value="">All Assignees</option>
+                <option value="AIMF">AIMF</option>
+                <option value="RAC">RAC</option>
+                <option value="DJUL">DJUL</option>
+                <option value="SA">SA</option>
+            </select>
+            <select id="priorityFilter" onchange="filterTasks()">
+                <option value="">All Priorities</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+            </select>
+        </div>
+
+        <div class="tasks-container">
+            <div class="tasks-header">
+                <div>Task Category & Details</div>
+                <div>Assignee</div>
+                <div>Status</div>
+                <div>Priority</div>
+                <div>Duration</div>
+                <div>Actions</div>
+            </div>
+            <div id="tasksList">
+                <div class="no-tasks">No tasks found. Add your first task above!</div>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <h3 style="margin-bottom: 20px; color: #333;">Monthly Report</h3>
+            <div class="report-controls">
+                <select id="reportMonth">
+                    <option value="0">January</option>
+                    <option value="1">February</option>
+                    <option value="2">March</option>
+                    <option value="3">April</option>
+                    <option value="4">May</option>
+                    <option value="5">June</option>
+                    <option value="6">July</option>
+                    <option value="7">August</option>
+                    <option value="8">September</option>
+                    <option value="9">October</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                </select>
+                <select id="reportYear">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+                <button class="generate-report-btn" onclick="generateReport()">Generate Report</button>
+            </div>
+            <div id="reportContent"></div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Task</h3>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="form-grid">
+                <select id="editTaskCategory">
+                    <option value="MOA">MOA</option>
+                    <option value="MOU">MOU</option>
+                    <option value="Assistance">Assistance</option>
+                    <option value="Attendance Report">Attendance Report</option>
+                    <option value="Clearance">Clearance</option>
+                    <option value="CNPAC">CNPAC</option>
+                    <option value="Communication Reimbursement">Communication Reimbursement</option>
+                    <option value="Complaint">Complaint</option>
+                    <option value="Compromise Agreement">Compromise Agreement</option>
+                    <option value="Concern">Concern</option>
+                    <option value="Contract Lease">Contract Lease</option>
+                    <option value="Contract of Agreement">Contract of Agreement</option>
+                    <option value="Contract of Service">Contract of Service</option>
+                    <option value="Contract of Undertaking">Contract of Undertaking</option>
+                    <option value="Crafting Policy">Crafting Policy</option>
+                    <option value="CSR">CSR</option>
+                    <option value="Deed of Donation">Deed of Donation</option>
+                    <option value="Endorsement">Endorsement</option>
+                    <option value="FabManLab Request">FabManLab Request</option>
+                    <option value="Flag Raising Ceremony">Flag Raising Ceremony</option>
+                    <option value="Green Contribution">Green Contribution</option>
+                    <option value="GSO Job Request">GSO Job Request</option>
+                    <option value="IDP">IDP</option>
+                    <option value="IGP Request">IGP Request</option>
+                    <option value="IPCR">IPCR</option>
+                    <option value="Legal Advice">Legal Advice</option>
+                    <option value="Letter">Letter</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Motorpool Request">Motorpool Request</option>
+                    <option value="OPCR">OPCR</option>
+                    <option value="Participation">Participation</option>
+                    <option value="PDS">PDS</option>
+                    <option value="Petty Cash Voucher">Petty Cash Voucher</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                    <option value="RIS">RIS</option>
+                    <option value="SALN">SALN</option>
+                    <option value="Service Agreement">Service Agreement</option>
+                    <option value="Speaking Engagement">Speaking Engagement</option>
+                    <option value="Study Grant Agreement">Study Grant Agreement</option>
+                    <option value="Study Leave Agreement">Study Leave Agreement</option>
+                    <option value="Support">Support</option>
+                    <option value="Term and Reference">Term and Reference</option>
+                    <option value="Thesis/Dissertation Assistance Contract">Thesis/Dissertation Assistance Contract</option>
+                    <option value="Travel Reimbursement">Travel Reimbursement</option>
+                    <option value="Usufruct">Usufruct</option>
+                    <option value="Webinar">Webinar</option>
+                    <option value="Website Maintenance">Website Maintenance</option>
+                    <option value="Written Legal Opinion">Written Legal Opinion</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" id="editTaskTitle" placeholder="Specific Task Title/Details">
+                <select id="editTaskAssignee">
+                    <option value="AIMF">Atty. Imee M. Fernandez (AIMF)</option>
+                    <option value="RAC">Rijane A. Cantanilla (RAC)</option>
+                    <option value="DJUL">Daisy Jane U. Lausin (DJUL)</option>
+                    <option value="SA">Student Assistant (SA)</option>
+                </select>
+                <select id="editTaskPriority">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+                <select id="editTaskStatus">
+                    <option value="todo">To Do</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="pending">Pending</option>
+                    <option value="accomplished">Accomplished</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <textarea id="editTaskDescription" placeholder="Additional Details/Description"></textarea>
+            </div><option value="todo">To Do</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="pending">Pending</option>
+                    <option value="accomplished">Accomplished</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <textarea id="editTaskDescription" placeholder="Task Description"></textarea>
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="add-task-btn" onclick="saveTaskEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System data
+        let tasks = [];
+        let currentEditId = null;
+        const SYSTEM_PASSWORD = "legal2024";
+
+        // Team members data
+        const teamMembers = {
+            'AIMF': 'Atty. Imee M. Fernandez',
+            'RAC': 'Rijane A. Cantanilla',
+            'DJUL': 'Daisy Jane U. Lausin',
+            'SA': 'Student Assistant'
+        };
+
+        // Initialize system
+        function initSystem() {
+            updateCurrentDate();
+            loadTasks();
+            updateStats();
+            setCurrentMonth();
+        }
+
+        // Login functionality
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (password === SYSTEM_PASSWORD) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                initSystem();
+                errorDiv.textContent = '';
+            } else {
+                errorDiv.textContent = 'Invalid password. Please try again.';
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // Date and time functions
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Manila'
+            };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function setCurrentMonth() {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            document.getElementById('reportMonth').value = currentMonth;
+            document.getElementById('reportYear').value = currentYear;
+        }
+
+        function formatDuration(startTime, endTime = null) {
+            const start = new Date(startTime);
+            const end = endTime ? new Date(endTime) : new Date();
+            const diff = Math.abs(end - start);
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (days > 0) {
+                return `${days}d ${hours}h ${minutes}m`;
+            } else if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else {
+                return `${minutes}m`;
+            }
+        }
+
+        // Task management functions
+        function addTask() {
+            const category = document.getElementById('taskCategory').value;
+            const title = document.getElementById('taskTitle').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            const priority = document.getElementById('taskPriority').value;
+            const description = document.getElementById('taskDescription').value;
+
+            if (!category || !title || !assignee || !priority) {
+                alert('Please fill in all required fields (Category, Title, Assignee, Priority)');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                category: category,
+                title: title,
+                description: description,
+                assignee: assignee,
+                priority: priority,
+                status: 'todo',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                completedAt: null
+            };
+
+            tasks.push(task);
+            saveTasks();
+            clearForm();
+            renderTasks();
+            updateStats();
+            
+            alert('Task added successfully!');
+        }
+
+        function clearForm() {
+            document.getElementById('taskCategory').value = '';
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskAssignee').value = '';
+            document.getElementById('taskPriority').value = '';
+            document.getElementById('taskDescription').value = '';
+        }
+
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            currentEditId = id;
+            document.getElementById('editTaskTitle').value = task.title;
+            document.getElementById('editTaskCategory').value = task.category;
+            document.getElementById('editTaskAssignee').value = task.assignee;
+            document.getElementById('editTaskPriority').value = task.priority;
+            document.getElementById('editTaskStatus').value = task.status;
+            document.getElementById('editTaskDescription').value = task.description;
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function saveTaskEdit() {
+            if (!currentEditId) return;
+
+            const taskIndex = tasks.findIndex(t => t.id === currentEditId);
+            if (taskIndex === -1) return;
+
+            const oldStatus = tasks[taskIndex].status;
+            const newStatus = document.getElementById('editTaskStatus').value;
+
+            tasks[taskIndex].category = document.getElementById('editTaskCategory').value;
+            tasks[taskIndex].title = document.getElementById('editTaskTitle').value;
+            tasks[taskIndex].assignee = document.getElementById('editTaskAssignee').value;
+            tasks[taskIndex].priority = document.getElementById('editTaskPriority').value;
+            tasks[taskIndex].status = newStatus;
+            tasks[taskIndex].description = document.getElementById('editTaskDescription').value;
+            tasks[taskIndex].updatedAt = new Date().toISOString();
+
+            // Track completion time
+            if (oldStatus !== 'accomplished' && newStatus === 'accomplished') {
+                tasks[taskIndex].completedAt = new Date().toISOString();
+            } else if (newStatus !== 'accomplished') {
+                tasks[taskIndex].completedAt = null;
+            }
+
+            saveTasks();
+            renderTasks();
+            updateStats();
+            closeEditModal();
+            
+            alert('Task updated successfully!');
+        }
+
+        function deleteTask(id) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
+                renderTasks();
+                updateStats();
+                alert('Task deleted successfully!');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditId = null;
+        }
+
+        // Filtering and rendering
+        function filterTasks() {
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const assigneeFilter = document.getElementById('assigneeFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+
+            let filteredTasks = tasks.filter(task => {
+                return (!categoryFilter || task.category === categoryFilter) &&
+                       (!statusFilter || task.status === statusFilter) &&
+                       (!assigneeFilter || task.assignee === assigneeFilter) &&
+                       (!priorityFilter || task.priority === priorityFilter);
+            });
+
+            // Sort by priority and creation date
+            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+            filteredTasks.sort((a, b) => {
+                const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+                if (priorityDiff !== 0) return priorityDiff;
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+
+            const tasksList = document.getElementById('tasksList');
+            
+            if (filteredTasks.length === 0) {
+                tasksList.innerHTML = '<div class="no-tasks">No tasks found matching your filters.</div>';
+                return;
+            }
+
+            tasksList.innerHTML = filteredTasks.map(task => {
+                const duration = formatDuration(task.createdAt, task.completedAt);
+                return `
+                    <div class="task-item">
+                        <div>
+                            <div class="task-title">
+                                <span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-right: 8px;">
+                                    ${task.category}
+                                </span>
+                                ${task.title}
+                            </div>
+                            <div class="task-description">${task.description}</div>
+                        </div>
+                        <div>${task.assignee}</div>
+                        <div>
+                            <span class="status-badge status-${task.status}">
+                                ${task.status.replace('-', ' ').toUpperCase()}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="priority-badge priority-${task.priority}">
+                                ${task.priority.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="time-display">${duration}</div>
+                        <div class="action-btns">
+                            <button class="action-btn edit-btn" onclick="editTask(${task.id})">Edit</button>
+                            <button class="action-btn delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Statistics
+        function updateStats() {
+            const total = tasks.length;
+            const accomplished = tasks.filter(t => t.status === 'accomplished').length;
+            const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+            const pending = tasks.filter(t => t.status === 'pending').length;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('accomplishedTasks').textContent = accomplished;
+            document.getElementById('inProgressTasks').textContent = inProgress;
+            document.getElementById('pendingTasks').textContent = pending;
+        }
+
+        // Reporting
+        function generateReport() {
+            const month = parseInt(document.getElementById('reportMonth').value);
+            const year = parseInt(document.getElementById('reportYear').value);
+            
+            const monthTasks = tasks.filter(task => {
+                const taskDate = new Date(task.createdAt);
+                return taskDate.getMonth() === month && taskDate.getFullYear() === year;
+            });
+
+            const reportContent = document.getElementById('reportContent');
+            
+            if (monthTasks.length === 0) {
+                reportContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No tasks found for the selected month.</p>';
+                return;
+            }
+
+            // Generate comprehensive report
+            const monthName = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            let reportHTML = `
+                <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #f9f9f9;">
+                    <h4 style="text-align: center; color: #333; margin-bottom: 20px;">
+                        OLA Task Management Report - ${monthName}
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            `;
+
+            // Summary statistics
+            const stats = {
+                total: monthTasks.length,
+                accomplished: monthTasks.filter(t => t.status === 'accomplished').length,
+                inProgress: monthTasks.filter(t => t.status === 'in-progress').length,
+                pending: monthTasks.filter(t => t.status === 'pending').length,
+                cancelled: monthTasks.filter(t => t.status === 'cancelled').length
+            };
+
+            Object.entries(stats).forEach(([key, value]) => {
+                const label = key === 'inProgress' ? 'In Progress' : key.charAt(0).toUpperCase() + key.slice(1);
+                reportHTML += `
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 5px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #667eea;">${value}</div>
+                        <div style="color: #666; font-size: 12px;">${label}</div>
+                    </div>
+                `;
+            });
+
+            reportHTML += `</div>`;
+
+            // Task breakdown by team member
+            const teamStats = {};
+            Object.keys(teamMembers).forEach(initial => {
+                const memberTasks = monthTasks.filter(t => t.assignee === initial);
+                teamStats[initial] = {
+                    name: teamMembers[initial],
+                    total: memberTasks.length,
+                    accomplished: memberTasks.filter(t => t.status === 'accomplished').length,
+                    inProgress: memberTasks.filter(t => t.status === 'in-progress').length,
+                    pending: memberTasks.filter(t => t.status === 'pending').length,
+                    cancelled: memberTasks.filter(t => t.status === 'cancelled').length
+                };
+            });
+
+            reportHTML += `
+                <h5 style="margin: 20px 0 10px 0; color: #333;">Team Performance Summary</h5>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background: #f1f3f4;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Team Member</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Total</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Accomplished</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">In Progress</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Pending</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Cancelled</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Completion Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            Object.entries(teamStats).forEach(([initial, data]) => {
+                const completionRate = data.total > 0 ? Math.round((data.accomplished / data.total) * 100) : 0;
+                reportHTML += `
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${data.name} (${initial})</td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${data.total}</td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #00b894;">${data.accomplished}</td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #74b9ff;">${data.inProgress}</td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #fd79a8;">${data.pending}</td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #636e72;">${data.cancelled}</td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd; font-weight: bold;">${completionRate}%</td>
+                    </tr>
+                `;
+            });
+
+            reportHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            // Task details by priority
+            const priorityStats = {
+                urgent: monthTasks.filter(t => t.priority === 'urgent'),
+                high: monthTasks.filter(t => t.priority === 'high'),
+                medium: monthTasks.filter(t => t.priority === 'medium'),
+                low: monthTasks.filter(t => t.priority === 'low')
+            };
+
+            reportHTML += `
+                <h5 style="margin: 20px 0 10px 0; color: #333;">Priority Distribution</h5>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px;">
+            `;
+
+            Object.entries(priorityStats).forEach(([priority, tasks]) => {
+                const accomplished = tasks.filter(t => t.status === 'accomplished').length;
+                const completionRate = tasks.length > 0 ? Math.round((accomplished / tasks.length) * 100) : 0;
+                reportHTML += `
+                    <div style="padding: 15px; background: white; border-radius: 5px; border-left: 4px solid ${priority === 'urgent' ? '#fd79a8' : priority === 'high' ? '#e74c3c' : priority === 'medium' ? '#fdcb6e' : '#00b894'};">
+                        <div style="font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">${priority}</div>
+                        <div style="color: #666; font-size: 14px;">
+                            ${tasks.length} tasks (${accomplished} completed)<br>
+                            <strong>${completionRate}% completion rate</strong>
+                        </div>
+                    </div>
+                `;
+            });
+
+            reportHTML += `</div>`;
+
+            // Detailed task list
+            reportHTML += `
+                <h5 style="margin: 20px 0 10px 0; color: #333;">Detailed Task List</h5>
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px;">
+            `;
+
+            monthTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(task => {
+                const duration = formatDuration(task.createdAt, task.completedAt);
+                const statusColor = {
+                    'todo': '#fdcb6e',
+                    'in-progress': '#74b9ff',
+                    'pending': '#fd79a8',
+                    'accomplished': '#00b894',
+                    'cancelled': '#636e72'
+                };
+
+                reportHTML += `
+                    <div style="padding: 15px; border-bottom: 1px solid #eee; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; align-items: center;">
+                        <div>
+                            <div style="font-weight: bold; margin-bottom: 5px;">${task.title}</div>
+                            <div style="color: #666; font-size: 12px;">${task.description}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: bold;">${task.assignee}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <span style="padding: 4px 8px; border-radius: 12px; background: ${statusColor[task.status]}; color: white; font-size: 11px; font-weight: bold;">
+                                ${task.status.replace('-', ' ').toUpperCase()}
+                            </span>
+                        </div>
+                        <div style="text-align: center; font-size: 12px; color: #666;">
+                            ${duration}
+                        </div>
+                    </div>
+                `;
+            });
+
+            reportHTML += `
+                </div>
+                <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
+                    Report generated on: ${new Date().toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}
+                </div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <button onclick="printReport()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Print Report</button>
+                </div>
+            </div>
+            `;
+
+            reportContent.innerHTML = reportHTML;
+        }
+
+        function printReport() {
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>OLA Monthly Report</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            table { border-collapse: collapse; width: 100%; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f1f3f4; }
+                            @media print {
+                                body { margin: 0; }
+                                button { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${reportContent}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Data persistence functions
+        function saveTasks() {
+            // In a real application, this would save to a database
+            // For demo purposes, we'll use memory storage only
+            // The tasks array persists throughout the session
+        }
+
+        function loadTasks() {
+            // In a real application, this would load from a database
+            // For demo purposes, we'll start with some sample data
+            if (tasks.length === 0) {
+                // Add some demo tasks for demonstration
+                const demoTasks = [
+                    {
+                        id: 1,
+                        title: "Review Contract Agreement",
+                        description: "Review and analyze the service contract for compliance issues",
+                        assignee: "AIMF",
+                        priority: "high",
+                        status: "in-progress",
+                        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        completedAt: null
+                    },
+                    {
+                        id: 2,
+                        title: "Prepare Legal Memorandum",
+                        description: "Draft legal memo regarding new policy implementation",
+                        assignee: "RAC",
+                        priority: "medium",
+                        status: "accomplished",
+                        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        completedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        title: "File Document Organization",
+                        description: "Organize and file incoming legal documents",
+                        assignee: "DJUL",
+                        priority: "low",
+                        status: "pending",
+                        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        completedAt: null
+                    },
+                    {
+                        id: 4,
+                        title: "Research Case Precedents",
+                        description: "Research relevant case law for ongoing litigation",
+                        assignee: "SA",
+                        priority: "urgent",
+                        status: "todo",
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        completedAt: null
+                    }
+                ];
+                tasks.push(...demoTasks);
+            }
+        }
+
+        // Auto-save functionality (every 30 seconds)
+        setInterval(() => {
+            if (tasks.length > 0) {
+                saveTasks();
+            }
+        }, 30000);
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        }
+
+        // Initialize the system when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on password input
+            document.getElementById('passwordInput').focus();
+        });
+
+        // Additional utility functions
+        function exportTasksToCSV() {
+            const headers = ['ID', 'Title', 'Description', 'Assignee', 'Priority', 'Status', 'Created', 'Updated', 'Duration'];
+            const csvContent = [
+                headers.join(','),
+                ...tasks.map(task => [
+                    task.id,
+                    `"${task.title}"`,
+                    `"${task.description}"`,
+                    task.assignee,
+                    task.priority,
+                    task.status,
+                    new Date(task.createdAt).toLocaleDateString(),
+                    new Date(task.updatedAt).toLocaleDateString(),
+                    formatDuration(task.createdAt, task.completedAt)
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `OLA_Tasks_Export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter to add task (when focused on form)
+            if (e.ctrlKey && e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && (activeElement.id === 'taskTitle' || activeElement.id === 'taskDescription')) {
+                    addTask();
+                }
+            }
+            
+            // Escape to close modal
+            if (e.key === 'Escape') {
+                closeEditModal();
+            }
+        });
+
+        // Add export button to header (optional enhancement)
+        function addExportButton() {
+            const headerControls = document.querySelector('.header-controls');
+            const exportBtn = document.createElement('button');
+            exportBtn.textContent = 'Export CSV';
+            exportBtn.className = 'logout-btn';
+            exportBtn.style.background = '#00b894';
+            exportBtn.style.marginRight = '10px';
+            exportBtn.onclick = exportTasksToCSV;
+            headerControls.insertBefore(exportBtn, headerControls.firstChild);
+        }
+
+        // Call this after login to add the export button
+        setTimeout(() => {
+            if (document.getElementById('mainContainer').style.display !== 'none') {
+                addExportButton();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
